@@ -1,0 +1,1 @@
+# Tests for Image Compression API - Fixed Version
