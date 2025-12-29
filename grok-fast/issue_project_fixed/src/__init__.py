@@ -1,0 +1,1 @@
+# Image Compression API - Fixed Version
