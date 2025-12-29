@@ -1,0 +1,247 @@
+# Role & Objective
+
+You are a senior software engineer tasked with fixing a Flask image compression API that has critical memory overflow issues, and then executing a full validation of the completed project to ensure all functionality works correctly.
+
+# Inputs & Context
+
+## Original Project Location
+- Original buggy project: `issue_project/` (DO NOT modify this)
+- Target workspace: `C:\BugBash\workSpace1\oswe-mini-prime-new`
+- Fixed project destination: `C:\BugBash\workSpace1\oswe-mini-prime-new\issue_project_fixed/`
+
+## Project Structure
+The original `issue_project/` contains:
+- `src\app.py` - Contains memory overflow bugs
+- `tests\test_image_api.py` - Integration tests (2 currently failing)
+- `tests\test_memory_handling.py` - Unit tests (4 currently failing)
+- `KNOWN_ISSUE.md` - Detailed issue documentation
+- `requirements.txt`, `.gitignore`, `README.md`, `data\.gitkeep`
+
+## Known Issues to Fix
+1. Missing upload size limit (Flask configuration issue)
+2. No pre-processing file size validation before image processing
+3. Inadequate exception handling (MemoryError not properly caught)
+4. Missing user-friendly error responses for oversized files
+
+# Step-by-Step Instructions
+
+## Phase 1: Analyze Original Project
+1. Read `issue_project/KNOWN_ISSUE.md` to understand all documented bugs
+2. Read `issue_project/src/app.py` to identify the buggy implementation
+3. Read both test files (`test_image_api.py`, `test_memory_handling.py`) to understand expected behavior
+4. Read `requirements.txt` to understand dependencies
+
+## Phase 2: Create Fixed Project Structure
+Create the following structure in `C:\BugBash\workSpace1\oswe-mini-prime-new\issue_project_fixed/`:
+```
+issue_project_fixed/
+├── src\
+│   ├── __init__.py
+│   └── app.py                 # FIXED version with all issues resolved
+├── tests\
+│   ├── __init__.py
+│   ├── test_image_api.py      # Updated tests - ALL must PASS
+│   └── test_memory_handling.py # Updated tests - ALL must PASS
+├── data\
+│   └── .gitkeep
+├── requirements.txt           # Same or updated dependencies
+├── .gitignore                 # Same as original
+├── README.md                  # Updated to reflect fixed version
+└── FIXES_APPLIED.md           # NEW: Document all fixes applied
+```
+
+## Phase 3: Implement Code Fixes in src\app.py
+Apply the following fixes:
+1. **Flask Configuration**: Set `app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024` (16MB) for Flask-level protection
+2. **Pre-processing Size Check**: Add `MAX_FILE_SIZE = 10 * 1024 * 1024` (10MB) and validate file size before processing
+3. **Dimension Protection**: Add `MAX_PIXELS = 25_000_000` and validate image dimensions before loading
+4. **Exception Handling**: Wrap image processing in try-except to catch `MemoryError` and return HTTP 413 with JSON error message
+5. **Error Handler**: Add `@app.errorhandler(413)` to return JSON responses for `RequestEntityTooLarge`
+6. **Code Comments**: Add inline comments explaining all security and safety measures
+
+## Phase 4: Update Tests
+1. **Remove xfail markers**: Delete all `@pytest.mark.xfail` decorators from both test files
+2. **Update assertions**: Change assertions to expect HTTP 413 for oversized uploads (not 500 errors)
+3. **Verify coverage**: Ensure tests cover:
+   - Large file uploads (> 10MB) return 413
+   - Extremely large image dimensions return 413
+   - MemoryError handling returns 413 with JSON response
+   - Valid requests still work correctly
+
+## Phase 5: Create Documentation
+1. **README.md**: Describe the fixed version, installation steps, and how to run
+2. **FIXES_APPLIED.md**: Document in detail:
+   - List of all issues found
+   - How each issue was fixed
+   - Code changes with file paths and line numbers
+   - Before/after code snippets
+   - Test results showing all tests pass
+   - Any additional improvements made
+
+## Phase 6: Full Validation Execution
+Execute comprehensive validation following these exact steps:
+
+### 6.1 Environment Setup
+1. Change directory to `C:\BugBash\workSpace1\oswe-mini-prime-new\issue_project_fixed`
+2. Install dependencies: `pip install -r requirements.txt`
+
+### 6.2 Run Service in Background
+1. Start Flask server in background using PowerShell `Start-Process`:
+   - Command: `python -m src.app`
+   - Redirect stdout to `server_out.log`
+   - Redirect stderr to `server_err.log`
+   - Capture process ID
+   - Wait 1-2 seconds for server to start
+
+### 6.3 Service Health Check
+1. Send HTTP GET request to `http://127.0.0.1:5000/health`
+2. Verify response contains `{"status":"healthy","service":"image-compression-api"}`
+3. Verify HTTP status code is 200
+
+### 6.4 Execute Test Suite
+1. Run `pytest -v` from the project directory
+2. Capture full output including:
+   - Number of tests collected
+   - Individual test results (PASSED/FAILED)
+   - Total pass/fail count
+   - Execution time
+
+### 6.5 Capture Server Logs
+1. Read last 200 lines from `server_out.log`
+2. Read last 200 lines from `server_err.log`
+3. Verify no errors or tracebacks in logs
+4. Confirm server startup messages are present
+
+### 6.6 Cleanup
+1. Stop the Flask server process (use captured process ID)
+2. Verify process terminated successfully
+
+### 6.7 Validation Summary Report
+Create a comprehensive summary including:
+- Service launch status (success/failure)
+- Health check result (response body and status code)
+- Test suite results (total tests, passed, failed, execution time)
+- Server log excerpts (startup messages, any errors)
+- Final confirmation: "All automated test cases passed" (yes/no)
+- List any failures, errors, or unexpected behaviors
+
+# Output Specification
+
+## Deliverables Checklist
+All items must be completed:
+- ✅ New directory created: `issue_project_fixed/`
+- ✅ Fixed `src\app.py` with all memory issues resolved
+- ✅ Updated `tests\test_image_api.py` with all tests passing
+- ✅ Updated `tests\test_memory_handling.py` with all tests passing
+- ✅ `requirements.txt` with all dependencies
+- ✅ Updated `README.md` for the fixed version
+- ✅ New `FIXES_APPLIED.md` documenting all changes
+- ✅ All tests pass: `pytest -v` shows 0 failures
+- ✅ Code is well-commented and production-ready
+- ✅ Service launches successfully without errors
+- ✅ Health endpoint responds correctly
+- ✅ Server logs captured and contain no errors
+- ✅ Validation summary report provided
+
+## Expected Test Results
+- Total tests: 13 (approximately)
+- Expected result: 13 passed, 0 failed
+- All tests must complete in single run without manual intervention
+
+## Expected Service Behavior
+- Flask server starts on `http://127.0.0.1:5000`
+- `/health` endpoint returns JSON with status "healthy"
+- Large uploads (> 10MB) return HTTP 413 with JSON error
+- Extremely large image dimensions return HTTP 413 with JSON error
+- No `MemoryError` exceptions crash the service
+- All error responses include clear, user-friendly messages
+
+# Constraints & Preferences
+
+## Technology Stack
+- **Framework**: Flask (maintain current version)
+- **Image Library**: Pillow (maintain current version)
+- **Testing**: pytest (maintain current version)
+- No additional dependencies unless absolutely necessary
+
+## Code Quality
+- Follow Python PEP 8 style guidelines
+- Keep code simple, readable, and maintainable
+- Add inline comments for all security and safety measures
+- Use descriptive variable names
+- Maintain backward compatibility for valid requests
+
+## Security Requirements
+- Implement defense-in-depth: multiple layers of protection
+- Validate file size before processing (pre-processing check)
+- Validate image dimensions before loading into memory
+- Configure Flask-level upload limits
+- Catch and handle all memory-related exceptions gracefully
+- Return appropriate HTTP status codes (413 for too large, 400 for bad request)
+
+## Testing Requirements
+- No `@pytest.mark.xfail` markers in final tests (all must pass)
+- Tests must validate the fixes, not just pass
+- Include both positive and negative test cases
+- Test edge cases (boundary values for file sizes and dimensions)
+
+# Quality Gates
+
+## Code Fix Validation
+Before proceeding to validation phase, confirm:
+1. All Flask configuration settings are correctly applied
+2. All validation checks are in place (file size, dimensions)
+3. All exception handlers are implemented
+4. All error responses return proper JSON format
+5. Code includes explanatory comments
+
+## Test Validation
+Before final validation, confirm:
+1. All `@pytest.mark.xfail` decorators removed
+2. All test assertions updated to match fixed behavior
+3. Running `pytest -v` locally shows 0 failures
+4. No skipped or xfailed tests remain
+
+## Service Validation
+During validation phase, verify:
+1. Server starts without errors
+2. Health endpoint responds within 2 seconds
+3. All test cases pass (13/13 expected)
+4. Server logs contain no errors or tracebacks
+5. Service can be cleanly stopped
+
+## Documentation Validation
+Ensure documentation includes:
+1. Clear description of each issue fixed
+2. Code snippets showing before/after
+3. Test results proving all tests pass
+4. Instructions for running the fixed project
+5. Any additional improvements or considerations
+
+# Success Criteria
+
+The task is complete and successful when ALL of the following are true:
+1. ✅ All tests pass without `xfail` markers (13/13 expected)
+2. ✅ Large file uploads return HTTP 413 with clear JSON error messages
+3. ✅ No `MemoryError` exceptions occur during testing
+4. ✅ Service remains stable under large file upload attempts
+5. ✅ Documentation (`FIXES_APPLIED.md`) clearly explains all fixes applied
+6. ✅ Flask service launches successfully in background
+7. ✅ Health endpoint returns correct response
+8. ✅ Server logs captured and contain no errors
+9. ✅ Validation summary explicitly states "All test cases passed"
+10. ✅ Code is production-ready with proper comments and error handling
+
+# Critical Execution Notes
+
+- **DO NOT modify** the original `issue_project/` directory
+- Create ALL files in `issue_project_fixed/` directory
+- Execute validation in single continuous workflow (no user intervention)
+- Capture all outputs, logs, and error traces automatically
+- If any test fails, include full error trace in validation summary
+- Stop server process after validation completes
+- Provide explicit pass/fail statement for all test cases in final summary
+
+---
+
+**FINAL INSTRUCTION**: Complete all phases sequentially in a single execution. Do not stop between phases. Provide comprehensive validation summary with explicit confirmation that all test cases passed.
